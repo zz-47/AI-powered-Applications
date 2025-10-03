@@ -1,74 +1,137 @@
+✅ 1. Detection Logic Changed: Heuristics → Semantic Similarity
+🔸 Before:
+
+Used static lists of safe_items and harmful_items (hardcoded words).
+
+Relied on:
+
+Keyword matches
+
+Simple regex patterns
+
+Word count thresholds
+
+🔸 Now:
+
+Uses machine learning (embeddings) to understand meaning of text.
+
+Compares user input to known safe and harmful examples using semantic similarity (cosine distance).
+
+No longer depends on exact keyword matches — it "understands" context.
+
+✅ 2. Learning from Examples Instead of Rules
+🔸 Before:
+
+Detection logic was static and required manual list updates.
+
+🔸 Now:
+
+Learns from a few example sentences:
+
+Safe claims like "Water is essential for life."
+
+Harmful claims like "Drink bleach to cure viruses."
+
+These examples are turned into embeddings (numerical meaning vectors).
+
+You can easily expand knowledge by adding more examples — no code changes needed.
+
+✅ 3. Confidence Scores Based on Similarity Metrics
+🔸 Before:
+
+Confidence was hardcoded (e.g., 99.9% if harmful keyword + "drink").
+
+🔸 Now:
+
+Confidence is dynamically derived from the cosine similarity score (0–1 scaled to 0–100).
+
+The closer the user text is to harmful/safe examples, the higher the confidence in the label.
+
+✅ 4. Contextual Understanding Introduced
+🔸 Before:
+
+Could not tell the difference between:
+
+"Mercury is harmful" (true)
+
+"Mercury cures cancer" (false)
+
+Treated any presence of "mercury" as potentially harmful/fake.
+
+🔸 Now:
+
+Captures sentence-level semantics, understanding intent and context, not just word presence.
+
+✅ 5. Easily Extendable to Online Learning or Real-Time Updates
+🔸 Before:
+
+You would need to manually update keyword lists to "teach" the system something new.
+
+🔸 Now:
+
+You can:
+
+Add more training examples without changing code.
+
+Dynamically load examples from web sources or articles.
+
+Integrate with knowledge bases or search APIs in the future.
 
 
-### What is `heuristic_override`?
 
-`heuristic_override` is a **custom function** that analyzes a given text (an article or a claim) to determine if it’s likely **REAL**, **FAKE**, or **UNKNOWN** news. It does this using a **rule-based heuristic approach**, meaning it checks for specific patterns, keywords, and logical conditions rather than relying on complex machine learning models.
 
----
 
-### How does it work?
 
-1. **Normalize Input:**
 
-   * The input text is converted to lowercase and stripped of extra spaces to make matching easier and consistent.
 
-2. **Define Knowledge Bases (Sets of Keywords):**
 
-   * **Safe items:** Words related to everyday safe things like food, physics concepts, technology, science terms.
-   * **Harmful items:** Dangerous substances (poisons, toxins), malware, dangerous war-related or violent terms.
-   * These sets help the function judge whether the text contains dangerous/harmful references or safe/common knowledge.
 
-3. **Check for Harmful Substances / Dangerous Topics:**
 
-   * If the text mentions harmful items (e.g., "poison," "malware," "bomb"), it may be flagged as **FAKE** with high confidence.
-   * Special handling of comparison claims like "X is better than Y" where if a harmful item is claimed better than a safe item, it’s flagged **FAKE**, otherwise **REAL**.
+🔄 Implementing RAG for Real-Time Fact Retrieval
+1. Web Scraping and Data Extraction
 
-4. **Simple Factual Statement Heuristics:**
+Utilize web scraping tools to collect factual data from reputable sources:
 
-   * If the text matches patterns like:
+Scrapy: A powerful Python framework for web crawling and data extraction. It's designed for scalability and efficiency. 
+realpython.com
 
-     * "X is Y."
-     * "X are Y."
-     * "X stands for Y."
-     * "X prevents Y."
-   * And the statement is short (under 120 characters), it's likely a **REAL** factual statement.
+Apify's AI Web Scraper: An AI-powered tool that adapts to various data structures, automatically identifying and extracting relevant information. 
+realpython.com
 
-5. **Fallback Case:**
+Kadoa: An LLM-based solution that auto-generates scrapers for any website, simplifying the data extraction process. 
+realpython.com
 
-   * If none of the above apply, the function returns **UNKNOWN** with moderate confidence, indicating insufficient information to decide.
+Note: Ensure compliance with websites' robots.txt files and terms of service to avoid legal issues. 
+realpython.com
 
----
+2. Integrating External Knowledge Sources
 
-### Why use heuristics?
+Incorporate structured data from reliable knowledge bases:
 
-* **Lightweight & Fast:** Doesn’t require heavy AI models or internet access.
-* **Explainable:** Easy to understand why a text was labeled a certain way.
-* **Customizable:** You can add new rules, keywords, or logic to improve detection.
+Wikidata: A vast, multilingual knowledge base that provides structured data on various topics. 
+realpython.com
 
----
+DBpedia: Extracts structured content from Wikipedia, offering a semantic web database for querying relationships and properties. 
+realpython.com
 
-### Limitations
+Data Commons: Combines economic, scientific, and other public datasets into a unified view, providing a rich source of factual information. 
+realpython.com
 
-* It relies on **fixed rules** and keyword lists, so it may not catch nuanced or complex fake news.
-* It can misclassify text that doesn't fit its simple patterns or uses unexpected phrasing.
-* It doesn’t learn or improve automatically.
+3. Processing and Embedding Data
 
----
+Convert the fetched data into embeddings using models like Sentence-Transformers. This step allows your system to compare and retrieve relevant information based on semantic similarity.
 
-### Summary Example
+4. Retrieving Relevant Information
 
-* Text: *"Water is essential for life."*
-  Matches simple factual pattern → Label: **REAL**
+When a user submits a claim:
 
-* Text: *"Poison is better than milk for health."*
-  Mentions harmful substance and harmful > safe comparison → Label: **FAKE**
+Fetch: Retrieve the most relevant documents or data points from your knowledge base using similarity search.
 
-* Text: *"The universe is expanding at an accelerating rate."*
-  Might fall into factual patterns and known safe items → Label: **REAL**
+Rank: Rank these documents based on relevance to the user's query.
 
-* Text: *"Aliens control the government."*
-  No matching heuristics, so → Label: **UNKNOWN**
+Verify: Use Natural Language Inference (NLI) models to assess the veracity of the claim against the retrieved information. 
+realpython.com
 
----
+5. Generating a Response
 
-If you want, I can help improve or explain specific parts of the function in more detail!
+Combine the retrieved information with your model's capabilities to generate a comprehensive response, providing users with accurate and up-to-date facts.

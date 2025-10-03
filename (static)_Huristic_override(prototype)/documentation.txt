@@ -1,0 +1,74 @@
+
+
+### What is `heuristic_override`?
+
+`heuristic_override` is a **custom function** that analyzes a given text (an article or a claim) to determine if it’s likely **REAL**, **FAKE**, or **UNKNOWN** news. It does this using a **rule-based heuristic approach**, meaning it checks for specific patterns, keywords, and logical conditions rather than relying on complex machine learning models.
+
+---
+
+### How does it work?
+
+1. **Normalize Input:**
+
+   * The input text is converted to lowercase and stripped of extra spaces to make matching easier and consistent.
+
+2. **Define Knowledge Bases (Sets of Keywords):**
+
+   * **Safe items:** Words related to everyday safe things like food, physics concepts, technology, science terms.
+   * **Harmful items:** Dangerous substances (poisons, toxins), malware, dangerous war-related or violent terms.
+   * These sets help the function judge whether the text contains dangerous/harmful references or safe/common knowledge.
+
+3. **Check for Harmful Substances / Dangerous Topics:**
+
+   * If the text mentions harmful items (e.g., "poison," "malware," "bomb"), it may be flagged as **FAKE** with high confidence.
+   * Special handling of comparison claims like "X is better than Y" where if a harmful item is claimed better than a safe item, it’s flagged **FAKE**, otherwise **REAL**.
+
+4. **Simple Factual Statement Heuristics:**
+
+   * If the text matches patterns like:
+
+     * "X is Y."
+     * "X are Y."
+     * "X stands for Y."
+     * "X prevents Y."
+   * And the statement is short (under 120 characters), it's likely a **REAL** factual statement.
+
+5. **Fallback Case:**
+
+   * If none of the above apply, the function returns **UNKNOWN** with moderate confidence, indicating insufficient information to decide.
+
+---
+
+### Why use heuristics?
+
+* **Lightweight & Fast:** Doesn’t require heavy AI models or internet access.
+* **Explainable:** Easy to understand why a text was labeled a certain way.
+* **Customizable:** You can add new rules, keywords, or logic to improve detection.
+
+---
+
+### Limitations
+
+* It relies on **fixed rules** and keyword lists, so it may not catch nuanced or complex fake news.
+* It can misclassify text that doesn't fit its simple patterns or uses unexpected phrasing.
+* It doesn’t learn or improve automatically.
+
+---
+
+### Summary Example
+
+* Text: *"Water is essential for life."*
+  Matches simple factual pattern → Label: **REAL**
+
+* Text: *"Poison is better than milk for health."*
+  Mentions harmful substance and harmful > safe comparison → Label: **FAKE**
+
+* Text: *"The universe is expanding at an accelerating rate."*
+  Might fall into factual patterns and known safe items → Label: **REAL**
+
+* Text: *"Aliens control the government."*
+  No matching heuristics, so → Label: **UNKNOWN**
+
+---
+
+If you want, I can help improve or explain specific parts of the function in more detail!
