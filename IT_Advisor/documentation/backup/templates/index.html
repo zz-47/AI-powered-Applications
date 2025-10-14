@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>TechWISE Advisor</title>
+<style>
+:root{
+    --bg:#0c0f12;
+    --panel:#0f1317;
+    --muted:#9aa5b1;
+    --accent:#58a6ff;
+    --green:#2ea043;
+    --red:#ff7b72;
+    --yellow:#f0c808;
+    --glass: rgba(255,255,255,0.03);
+    --card-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    --radius:14px;
+}
+html,body{height:100%;margin:0;font-family:Inter, "Segoe UI", system-ui, Arial, sans-serif;background:linear-gradient(180deg,#071018 0%, #08121a 60%);color:#dbe7ef;}
+.app {display:flex;align-items:center;justify-content:center;min-height:100vh;padding:40px;gap:28px;transform: scale(1.03);}
+.shell {width:100%;max-width:1150px;display:grid;grid-template-columns: 1fr 440px;gap:28px;align-items:start;}
+.panel {background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius: var(--radius);padding:24px;box-shadow: var(--card-shadow);border: 1px solid rgba(255,255,255,0.03);}
+header.app-header{display:flex;align-items:center;gap:16px;margin-bottom:14px;}
+.logo {width:60px;height:60px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#9be7ff);display:flex;align-items:center;justify-content:center;font-weight:700;color:#021025;box-shadow: 0 6px 20px rgba(88,166,255,0.08), inset 0 -4px 10px rgba(0,0,0,0.25);}
+h1{margin:0;font-size:22px;color:var(--accent);}
+p.subtitle{margin:0;color:var(--muted);font-size:14px;}
+.input-area {margin-top:16px;display:flex;gap:14px;align-items:flex-start;}
+textarea#query{
+    flex:1;
+    min-height:220px;  /* Increased height to match controls panel */
+    max-height:300px;
+    resize:vertical;
+    background:transparent;
+    border:1px solid rgba(255,255,255,0.04);
+    color:#e6f1ff;
+    padding:14px 16px;
+    border-radius:12px;
+    font-size:15px;
+    outline:none;
+}
+.controls {display:flex;flex-direction:column;gap:12px;width:190px;}
+.btn {display:inline-flex;align-items:center;gap:8px;justify-content:center;padding:12px 16px;border-radius:12px;border:none;cursor:pointer;font-weight:600;background:linear-gradient(180deg,var(--green),#1e8a33);color:white;}
+.btn.secondary {background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted);font-weight:600;}
+.response {margin-top:18px;background:var(--panel);border-radius:12px;padding:18px;border:1px solid rgba(255,255,255,0.03);min-height:180px;white-space:pre-wrap;line-height:1.7;font-size:15px;color:#dbe7ef;overflow:auto;} /* Smaller output box */
+.response .section-div{padding:6px 0;margin-bottom:6px;border-left:3px solid var(--accent);}
+.meta {display:flex;gap:14px;align-items:center;margin-top:14px;font-size:14px;color:var(--muted);}
+.side {display:flex;flex-direction:column;gap:18px;}
+.card {background:var(--panel);border-radius:14px;padding:16px;border:1px solid rgba(255,255,255,0.03);box-shadow: 0 10px 30px rgba(0,0,0,0.6);}
+label{display:block;font-size:14px;color:var(--muted);margin-bottom:6px;}
+select,input[type="range"]{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit;}
+.small{font-size:13px;color:var(--muted);}
+.typewriter-caret {display:inline-block;width:10px;background:linear-gradient(90deg,var(--accent),#9be7ff);margin-left:6px;animation: blink 1s steps(2,start) infinite;height:1em;border-radius:2px;vertical-align:bottom;}
+@keyframes blink{50%{opacity:0}}
+.footer {margin-top:16px;text-align:center;font-size:13px;color:var(--muted);}
+.topbar-stats{display:flex;gap:10px;align-items:center;color:var(--muted);font-size:14px;}
+.stat-pill{background:var(--glass);padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.02);}
+.spinner {width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.08);border-top-color:var(--accent);animation: spin 1s linear infinite;display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.example-prompt{cursor:pointer;padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.05);background:rgba(88,166,255,0.05);color:#58a6ff;margin-bottom:6px;transition:0.2s;}
+.example-prompt:hover{background:rgba(88,166,255,0.1);}
+.progress-container{width:100%;background:rgba(255,255,255,0.05);height:6px;border-radius:3px;margin-bottom:8px;overflow:hidden;}
+.progress-bar{height:6px;background:var(--accent);width:0%;}
+@media (max-width:980px){.shell{grid-template-columns:1fr; padding:0;}.side{order:2;}}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="shell">
+    <div class="panel">
+        <header class="app-header">
+            <div class="logo">TW</div>
+            <div>
+                <h1>TechWISE Advisor</h1>
+                <p class="subtitle">Ask any IT question. Get beginner-friendly, step-by-step guidance.</p>
+            </div>
+            <div style="margin-left:auto" class="topbar-stats">
+                <div class="stat-pill">Online FLAN-T5</div>
+                <div class="stat-pill">Local</div>
+            </div>
+        </header>
+
+        <div class="input-area">
+            <textarea id="query" placeholder="Type your IT question here..." maxlength="1500"></textarea>
+            <div class="controls">
+                <label for="styleSelect">Output Style</label>
+                <select id="styleSelect">
+                    <option value="paragraph" selected>Paragraph</option>
+                    <option value="points">Points</option>
+                </select>
+                <button id="askBtn" class="btn">Ask</button>
+                <button id="stopBtn" class="btn secondary">Stop</button>
+                <button id="resetBtn" class="btn secondary">Reset</button>
+            </div>
+        </div>
+
+        <div class="response" aria-live="polite">
+            <div class="progress-container">
+                <div id="progressBar" class="progress-bar"></div>
+            </div>
+            <div id="responseContent">Answer will appear here.</div>
+        </div>
+
+        <div class="meta">
+            <div id="statusText" class="small">Idle</div>
+        </div>
+        <div class="footer">⚙️ Powered online by FLAN-T5 & Flask — Typewriter + TTS added</div>
+    </div>
+
+    <aside class="side">
+        <div class="card">
+            <label for="voiceSelect">Voice</label>
+            <select id="voiceSelect"></select>
+            <label for="rate">Rate: <span id="rateVal">1.0</span></label>
+            <input id="rate" type="range" min="0.5" max="2" step="0.1" value="1">
+            <label for="pitch">Pitch: <span id="pitchVal">1.0</span></label>
+            <input id="pitch" type="range" min="0.5" max="2" step="0.1" value="1">
+            <label for="revealSpeed">Typewriter speed (ms/char)</label>
+            <input id="revealSpeed" type="range" min="6" max="40" step="1" value="16">
+        </div>
+
+        <div class="card">
+            <div style="font-weight:700">Playback</div>
+            <button id="playPause" class="btn" style="width:100%; margin-top:8px;">Play TTS + Reveal</button>
+        </div>
+
+        <div class="card">
+            <div style="font-weight:700">Example Prompts</div>
+            <div id="examplePrompts" style="margin-top:8px"></div>
+        </div>
+    </aside>
+</div>
+</div>
+
+<script>
+const askBtn = document.getElementById('askBtn');
+const stopBtn = document.getElementById('stopBtn');
+const resetBtn = document.getElementById('resetBtn');
+const responseContent = document.getElementById('responseContent');
+const progressBar = document.getElementById('progressBar');
+const statusText = document.getElementById('statusText');
+const styleSelect = document.getElementById('styleSelect');
+const MAX_QUERY_CHARS = 1500;
+let stopStreamFlag = false;
+
+const examplePrompts = [
+    "Why does my Wi-Fi disconnect randomly on Windows 11?",
+    "How can I safely free up disk space on Windows 11?",
+    "Printer is not printing. What should I do?",
+    "How do I reset my Windows 11 network settings?",
+    "Best steps to improve Windows 11 system performance."
+];
+
+const examplePromptsDiv = document.getElementById('examplePrompts');
+examplePrompts.forEach(p=>{
+    const btn=document.createElement('div');
+    btn.className="example-prompt";
+    btn.textContent=p;
+    btn.onclick=()=>{document.getElementById('query').value=p;};
+    examplePromptsDiv.appendChild(btn);
+});
+
+function setStatus(text){ statusText.textContent=text; }
+function enableControls(enabled){ askBtn.disabled=!enabled; stopBtn.disabled=!enabled; }
+
+async function askAndDisplay() {
+    const query = document.getElementById('query').value.trim();
+    const style = styleSelect.value;
+    if(!query){ responseContent.textContent="⚠️ Please enter a question."; return; }
+    if(query.length>MAX_QUERY_CHARS){ responseContent.textContent=`⚠️ Query too long! Max ${MAX_QUERY_CHARS} chars.`; return; }
+
+    responseContent.innerHTML = "";
+    progressBar.style.width = "0%";
+    setStatus("Fetching advice...");
+    enableControls(false);
+    stopStreamFlag = false;
+
+    try {
+        const res = await fetch('/get_advice_stream', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query, style })
+        });
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let done = false;
+        let totalLength = 0;
+
+        while(!done){
+            const {value, done: readerDone} = await reader.read();
+            done = readerDone;
+            if(value){
+                if(stopStreamFlag) break;
+                buffer += decoder.decode(value, {stream:true});
+                totalLength += value.length;
+                progressBar.style.width = Math.min(100, totalLength / 15) + "%";
+
+                const sections = buffer.split(/\n\n/);
+                responseContent.innerHTML = "";
+                sections.forEach(sec=>{
+                    if(sec.trim().length===0) return;
+                    let div = document.createElement('div');
+                    div.className = "section-div";
+                    div.innerHTML = sec.replace(/\n/g,"<br>");
+                    responseContent.appendChild(div);
+                });
+                responseContent.scrollTop = responseContent.scrollHeight;
+            }
+        }
+        setStatus(stopStreamFlag ? "Stopped" : "Complete");
+        progressBar.style.width = "100%";
+    } catch(err){
+        setStatus("Connection error");
+        responseContent.textContent = "❌ Could not connect to backend.";
+    } finally {
+        enableControls(true);
+    }
+}
+
+const playPauseBtn = document.getElementById('playPause');
+playPauseBtn.addEventListener('click', ()=>{
+    const text = responseContent.textContent;
+    if(!text) return;
+    speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.rate = parseFloat(document.getElementById('rate').value);
+    utter.pitch = parseFloat(document.getElementById('pitch').value);
+    const voices = window.speechSynthesis.getVoices();
+    utter.voice = voices[document.getElementById('voiceSelect').selectedIndex] || null;
+    speechSynthesis.speak(utter);
+
+    const revealSpeed = parseInt(document.getElementById('revealSpeed').value);
+    let i = 0;
+    responseContent.textContent = "";
+    function typeWriterChunk() {
+        if(i < text.length){
+            responseContent.textContent += text[i++];
+            setTimeout(typeWriterChunk, revealSpeed);
+        }
+    }
+    typeWriterChunk();
+});
+
+askBtn.addEventListener('click', askAndDisplay);
+resetBtn.addEventListener('click', ()=>{
+    document.getElementById('query').value = '';
+    responseContent.textContent = '';
+    progressBar.style.width = "0%";
+    setStatus('Idle');
+});
+stopBtn.addEventListener('click', ()=>{
+    speechSynthesis.cancel();
+    stopStreamFlag = true;
+    setStatus('Stopped');
+});
+
+// Populate voices
+function loadVoices(){
+    const voices=window.speechSynthesis.getVoices();
+    const sel=document.getElementById('voiceSelect'); sel.innerHTML="";
+    voices.forEach(v=>{
+        const opt=document.createElement('option');
+        opt.text=v.name;
+        sel.appendChild(opt);
+    });
+}
+window.speechSynthesis.onvoiceschanged = loadVoices;
+loadVoices();
+</script>
+</body>
+</html>
