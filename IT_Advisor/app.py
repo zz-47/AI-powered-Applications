@@ -1,29 +1,32 @@
 from flask import Flask, render_template, request, jsonify
-from model_service import generate_answer
-import logging
+from cleaner.text_cleaner import clean_text
+from crawler.web_crawler import scrape_web_summary
+from requirement_planner import generate_advice
 
 app = Flask(__name__)
-logging.basicConfig(level=logging.INFO)
-
 
 @app.route("/")
-def index():
+def home():
     return render_template("index.html")
-
 
 @app.route("/ask", methods=["POST"])
 def ask():
     data = request.get_json()
-    question = data.get("prompt", "").strip()
-    style = data.get("style", "paragraph").strip().lower()
+    query = data.get("question", "").strip()
 
-    if not question:
-        return jsonify({"answer": "⚠️ Please enter a valid question."})
+    if not query:
+        return jsonify({"response": "Please enter your IT-related question."})
 
-    logging.info(f"Received: {question}")
-    answer = generate_answer(question, style)
-    return jsonify({"answer": answer})
+    # Step 1: Clean input
+    cleaned = clean_text(query)
 
+    # Step 2: Scrape contextual info
+    web_context = scrape_web_summary(cleaned)
+
+    # Step 3: Generate refined advice
+    response = generate_advice(cleaned, web_context)
+
+    return jsonify({"response": response})
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000, debug=False)
+    app.run(debug=True)

@@ -1,8 +1,6 @@
-flask
-torch
-transformers
-faiss-cpu
-sentence-transformers
-httpx
-selectolax
-scrapy
+flask>=2.0
+requests
+beautifulsoup4
+transformers>=4.30
+torch  # install appropriate torch for your OS; CPU build is fine
+sentencepiece

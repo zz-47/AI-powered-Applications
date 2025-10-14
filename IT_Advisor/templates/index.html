@@ -1,50 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>TechWISE Advisor</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
-<style>
-  body {
-    background:#0b1118;
-    color:#eaf2fb;
-    font-family:"Segoe UI",sans-serif;
-    display:flex;justify-content:center;align-items:center;min-height:100vh;
-  }
-  .box {
-    width:90%;max-width:800px;padding:20px;border-radius:12px;
-    background:#111820;box-shadow:0 0 25px rgba(0,0,0,0.5);
-  }
-  textarea {
-    width:100%;height:140px;background:#0c131a;color:#fff;border:none;
-    border-radius:8px;padding:10px;resize:vertical;
-  }
-  button {
-    margin-top:12px;padding:10px 16px;background:#2ea043;color:#fff;border:none;
-    border-radius:8px;font-weight:600;cursor:pointer;
-  }
-  #output {
-    margin-top:20px;background:rgba(255,255,255,0.05);padding:15px;
-    border-radius:8px;white-space:pre-wrap;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TechWISE Advisor</title>
+  <link rel="stylesheet" href="/static/style.css" />
 </head>
 <body>
-<div class="box">
-  <h1>⚙️ TechWISE Advisor</h1>
-  <p>Ask your IT question below.</p>
-  <textarea id="prompt" placeholder="Why does my Wi-Fi disconnect randomly on Windows 11?"></textarea>
-  <div>
-    <label>Style:</label>
-    <select id="style">
-      <option value="paragraph">Paragraph</option>
-      <option value="points">Points</option>
-    </select>
+  <div class="container">
+    <h1>💡 TechWISE Advisor</h1>
+    <p>Ask any IT question and get full project reasoning.</p>
+
+    <textarea id="question" placeholder="Type your IT question here..."></textarea>
+    <button id="askBtn">Ask</button>
+
+    <pre id="response"></pre>
   </div>
-  <button id="askBtn">Ask</button>
-  <div id="output">Your answer will appear here...</div>
-</div>
-<script src="/static/main.js"></script>
+
+  <script>
+    document.getElementById("askBtn").onclick = async () => {
+      const question = document.getElementById("question").value;
+      const responseBox = document.getElementById("response");
+      responseBox.textContent = "Thinking...";
+      const res = await fetch("/ask", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ question })
+      });
+      const data = await res.json();
+      responseBox.textContent = data.response;
+    };
+  </script>
 </body>
 </html>
