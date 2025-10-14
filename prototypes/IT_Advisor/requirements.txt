@@ -1,8 +1,0 @@
-flask
-torch
-transformers
-faiss-cpu
-sentence-transformers
-httpx
-selectolax
-scrapy

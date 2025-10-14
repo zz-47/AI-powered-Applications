@@ -28,7 +28,7 @@ p.subtitle{margin:0;color:var(--muted);font-size:14px;}
 .input-area {margin-top:16px;display:flex;gap:14px;align-items:flex-start;}
 textarea#query{
     flex:1;
-    min-height:220px;  /* Increased height to match controls panel */
+    min-height:220px;
     max-height:300px;
     resize:vertical;
     background:transparent;
@@ -42,7 +42,7 @@ textarea#query{
 .controls {display:flex;flex-direction:column;gap:12px;width:190px;}
 .btn {display:inline-flex;align-items:center;gap:8px;justify-content:center;padding:12px 16px;border-radius:12px;border:none;cursor:pointer;font-weight:600;background:linear-gradient(180deg,var(--green),#1e8a33);color:white;}
 .btn.secondary {background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted);font-weight:600;}
-.response {margin-top:18px;background:var(--panel);border-radius:12px;padding:18px;border:1px solid rgba(255,255,255,0.03);min-height:180px;white-space:pre-wrap;line-height:1.7;font-size:15px;color:#dbe7ef;overflow:auto;} /* Smaller output box */
+.response {margin-top:18px;background:var(--panel);border-radius:12px;padding:18px;border:1px solid rgba(255,255,255,0.03);min-height:180px;white-space:pre-wrap;line-height:1.7;font-size:15px;color:#dbe7ef;overflow:auto;}
 .response .section-div{padding:6px 0;margin-bottom:6px;border-left:3px solid var(--accent);}
 .meta {display:flex;gap:14px;align-items:center;margin-top:14px;font-size:14px;color:var(--muted);}
 .side {display:flex;flex-direction:column;gap:18px;}
@@ -143,12 +143,13 @@ const styleSelect = document.getElementById('styleSelect');
 const MAX_QUERY_CHARS = 1500;
 let stopStreamFlag = false;
 
-const examplePrompts = [
-    "Why does my Wi-Fi disconnect randomly on Windows 11?",
+// Example prompts fallback (works without Flask)
+const examplePrompts = (typeof issues !== 'undefined') ? {{ issues|tojson }} : [
+    "Windows 11 battery drains very fast even when idle",
+    "Wi-Fi disconnects randomly on Windows 11",
     "How can I safely free up disk space on Windows 11?",
-    "Printer is not printing. What should I do?",
-    "How do I reset my Windows 11 network settings?",
-    "Best steps to improve Windows 11 system performance."
+    "Printer is not printing",
+    "How do I reset my Windows 11 network settings?"
 ];
 
 const examplePromptsDiv = document.getElementById('examplePrompts');
@@ -181,6 +182,7 @@ async function askAndDisplay() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ query, style })
         });
+
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
         let buffer = "";
